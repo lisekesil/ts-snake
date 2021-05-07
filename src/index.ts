@@ -1,3 +1,4 @@
 import './main.scss';
+import { Game } from './ts/Game';
 
-console.log('sss');
+const game = new Game();
