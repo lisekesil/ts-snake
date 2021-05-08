@@ -8,6 +8,6 @@ export enum DirectionsEnum {
 export const GAME_HEIGHT = 400;
 export const GAME_WIDTH = 600;
 
-export const SQUARE_SIZE = 20;
+export const SQUARE_SIZE = 40;
 
 export const SNAKE_SPEED_PER_SEC = 10;

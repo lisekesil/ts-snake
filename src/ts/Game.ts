@@ -22,13 +22,13 @@ export class Game {
 
       this.lastRenderTime = 0;
 
-      this.point = new Square(200, 200);
+      this.point = new Square(40, 40);
       this.snake = new Snake();
       this.direction = DirectionsEnum.RIGHT;
       this.lastDirection = this.direction;
       this.drawSnake();
       this.drawPoint();
-      // window.requestAnimationFrame(this.animateGame.bind(this));
+      window.requestAnimationFrame(this.animateGame.bind(this));
 
       document.addEventListener('keydown', (e) => this.setDirection(e));
    }
@@ -47,10 +47,33 @@ export class Game {
       this.ctx.stroke();
    }
 
-   renderNewPoint() {
-      const x = Math.ceil((Math.random() * GAME_WIDTH - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE;
-      const y = Math.ceil((Math.random() * GAME_HEIGHT - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE;
-      this.point = new Square(x, y);
+   getNewPointPosition(): { x: number; y: number } {
+      let pos = {
+         x: Math.ceil((Math.random() * GAME_WIDTH - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE,
+         y: Math.ceil((Math.random() * GAME_HEIGHT - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE,
+      };
+      let exist = this.snake.body.find((el) => el.position.x === pos.x && el.position.y === pos.y);
+      console.log(exist?.position);
+      console.log(pos);
+      if (exist?.position.y === pos.y && exist.position.x === pos.x) {
+         pos = this.getNewPointPosition();
+      }
+      // while (pos === null || exist) {
+      //    pos = this.renderNewPoint();
+      // }
+
+      return pos;
+      // const x = Math.ceil((Math.random() * GAME_WIDTH - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE;
+      // const y = Math.ceil((Math.random() * GAME_HEIGHT - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE;
+      // this.snake.body.forEach((el) => {
+      //    if (el.position.x === x && el.position.y === y) {
+      //       console.log(el.position.x, el.position.y, x, y);
+      //       return this.renderNewPoint();
+      //    }
+      // });
+      // this.point = new Square(x, y);
+      // return { x: x, y: y };
+      // console.log('-----');
    }
 
    drawSnake() {
@@ -72,9 +95,6 @@ export class Game {
 
       this.lastRenderTime = timestamp;
 
-      this.snake.move(this.direction);
-      this.drawGame();
-
       const middle = SQUARE_SIZE / 2;
       if (
          this.snake.head.position.x + middle === this.point.position.x + middle &&
@@ -83,8 +103,11 @@ export class Game {
          const lastX = this.snake.body[this.snake.body.length - 1].position.x;
          const lastY = this.snake.body[this.snake.body.length - 1].position.y;
          this.snake.body.push(new Square(lastX, lastY));
-         this.renderNewPoint();
+         const pointXY = this.getNewPointPosition();
+         this.point = new Square(pointXY.x, pointXY.y);
       }
+      this.snake.move(this.direction);
+      this.drawGame();
       // console.log(
       //    this.snake.body[1].position.x,
       //    this.snake.body[1].position.y,

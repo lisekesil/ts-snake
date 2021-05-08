@@ -11,7 +11,7 @@ export class Snake {
    head: Square;
 
    constructor() {
-      this.head = new Square(100, 100);
+      this.head = new Square(160, 160);
       this.body = [
          this.head,
          new Square(this.head.position.x - SQUARE_SIZE, this.head.position.y),
