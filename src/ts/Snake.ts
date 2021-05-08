@@ -23,7 +23,7 @@ export class Snake {
       for (let i = this.body.length - 2; i >= 0; i--) {
          this.body[i + 1].position = { ...this.body[i].position };
       }
-      console.log(direction);
+
       switch (direction) {
          case DirectionsEnum.RIGHT:
             this.body[0].position.x += SQUARE_SIZE;
