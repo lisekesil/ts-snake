@@ -30,9 +30,11 @@ export class Snake {
             break;
          case DirectionsEnum.UP:
             this.body[0].position.y -= SQUARE_SIZE;
+            console.log(this.body[0].position.x, this.body[0].position.y);
             break;
          case DirectionsEnum.LEFT:
             this.body[0].position.x -= SQUARE_SIZE;
+            console.log(this.body[0].position.x, this.body[0].position.y);
             break;
          case DirectionsEnum.DOWN:
             this.body[0].position.y += SQUARE_SIZE;

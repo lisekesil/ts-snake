@@ -9,7 +9,7 @@ export class Game {
    speed: number;
    lastRenderTime: number;
    direction: DirectionsEnum;
-   lastDirection: DirectionsEnum;
+   directionsQueue: DirectionsEnum[];
    point: Square;
 
    constructor() {
@@ -25,7 +25,7 @@ export class Game {
       this.point = new Square(40, 40);
       this.snake = new Snake();
       this.direction = DirectionsEnum.RIGHT;
-      this.lastDirection = this.direction;
+      this.directionsQueue = [this.direction];
       this.drawSnake();
       this.drawPoint();
       window.requestAnimationFrame(this.animateGame.bind(this));
@@ -58,22 +58,8 @@ export class Game {
       if (exist?.position.y === pos.y && exist.position.x === pos.x) {
          pos = this.getNewPointPosition();
       }
-      // while (pos === null || exist) {
-      //    pos = this.renderNewPoint();
-      // }
 
       return pos;
-      // const x = Math.ceil((Math.random() * GAME_WIDTH - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE;
-      // const y = Math.ceil((Math.random() * GAME_HEIGHT - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE;
-      // this.snake.body.forEach((el) => {
-      //    if (el.position.x === x && el.position.y === y) {
-      //       console.log(el.position.x, el.position.y, x, y);
-      //       return this.renderNewPoint();
-      //    }
-      // });
-      // this.point = new Square(x, y);
-      // return { x: x, y: y };
-      // console.log('-----');
    }
 
    drawSnake() {
@@ -106,38 +92,46 @@ export class Game {
          const pointXY = this.getNewPointPosition();
          this.point = new Square(pointXY.x, pointXY.y);
       }
+
+      if (this.directionsQueue.length) {
+         this.direction = this.directionsQueue.pop()!;
+      }
       this.snake.move(this.direction);
       this.drawGame();
-      // console.log(
-      //    this.snake.body[1].position.x,
-      //    this.snake.body[1].position.y,
-      //    this.snake.body[2].position.x,
-      //    this.snake.body[2].position.y,
-      // );
    }
 
    setDirection(e: KeyboardEvent) {
+      // this.lastDirection = this.direction;
+      const lastDirection = this.directionsQueue.length ? this.directionsQueue[0] : this.direction;
+
       switch (e.key) {
          case DirectionsEnum.RIGHT:
-            if (this.lastDirection === DirectionsEnum.LEFT) return;
-            this.direction = DirectionsEnum.RIGHT;
+            // if (this.lastDirection === DirectionsEnum.LEFT) return;
+            if (lastDirection !== DirectionsEnum.LEFT)
+               this.directionsQueue.unshift(DirectionsEnum.RIGHT);
+            // this.direction = DirectionsEnum.RIGHT;
             break;
          case DirectionsEnum.LEFT:
-            if (this.lastDirection === DirectionsEnum.RIGHT) return;
-            this.direction = DirectionsEnum.LEFT;
+            // if (this.lastDirection === DirectionsEnum.RIGHT) return;
+            if (lastDirection !== DirectionsEnum.RIGHT)
+               this.directionsQueue.unshift(DirectionsEnum.LEFT);
+            // this.direction = DirectionsEnum.LEFT;
             break;
          case DirectionsEnum.UP:
-            if (this.lastDirection === DirectionsEnum.DOWN) return;
-            this.direction = DirectionsEnum.UP;
+            // if (this.lastDirection === DirectionsEnum.DOWN) return;
+            if (lastDirection !== DirectionsEnum.DOWN)
+               this.directionsQueue.unshift(DirectionsEnum.UP);
+            // this.direction = DirectionsEnum.UP;
             break;
          case DirectionsEnum.DOWN:
-            if (this.lastDirection === DirectionsEnum.UP) return;
-            this.direction = DirectionsEnum.DOWN;
+            // if (this.lastDirection === DirectionsEnum.UP) return;
+            if (lastDirection !== DirectionsEnum.UP)
+               this.directionsQueue.unshift(DirectionsEnum.DOWN);
+            // this.direction = DirectionsEnum.DOWN;
             break;
 
          default:
             return;
       }
-      this.lastDirection = this.direction;
    }
 }
