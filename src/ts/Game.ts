@@ -1,4 +1,4 @@
-import { GAME_HEIGHT, GAME_WIDTH, SNAKE_SPEED_PER_SEC, SQUARE_SIZE } from './const';
+import { GAME_HEIGHT, GAME_WIDTH, SNAKE_SPEED_PER_SEC, SQUARE_SIZE, DirectionsEnum } from './const';
 import { Snake } from './Snake';
 
 export class Game {
@@ -7,6 +7,8 @@ export class Game {
    snake: Snake;
    speed: number;
    lastRenderTime: number;
+   direction: DirectionsEnum;
+   lastDirection: DirectionsEnum;
 
    constructor() {
       this.canvas = <HTMLCanvasElement>document.getElementById('canvas');
@@ -19,8 +21,12 @@ export class Game {
       this.lastRenderTime = 0;
 
       this.snake = new Snake();
+      this.direction = DirectionsEnum.RIGHT;
+      this.lastDirection = this.direction;
       this.drawSnake();
       window.requestAnimationFrame(this.moveSnake.bind(this));
+
+      document.addEventListener('keydown', (e) => this.setDirection(e));
    }
 
    drawSnake() {
@@ -39,10 +45,7 @@ export class Game {
 
       this.lastRenderTime = timestamp;
 
-      this.snake.body.forEach((el) => {
-         el.position.x += SQUARE_SIZE;
-      });
-
+      this.snake.move(this.direction);
       this.drawSnake();
 
       console.log(
@@ -51,5 +54,30 @@ export class Game {
          this.snake.body[2].position.x,
          this.snake.body[2].position.y,
       );
+   }
+
+   setDirection(e: KeyboardEvent) {
+      switch (e.key) {
+         case DirectionsEnum.RIGHT:
+            if (this.lastDirection === DirectionsEnum.LEFT) return;
+            this.direction = DirectionsEnum.RIGHT;
+            break;
+         case DirectionsEnum.LEFT:
+            if (this.lastDirection === DirectionsEnum.RIGHT) return;
+            this.direction = DirectionsEnum.LEFT;
+            break;
+         case DirectionsEnum.UP:
+            if (this.lastDirection === DirectionsEnum.DOWN) return;
+            this.direction = DirectionsEnum.UP;
+            break;
+         case DirectionsEnum.DOWN:
+            if (this.lastDirection === DirectionsEnum.UP) return;
+            this.direction = DirectionsEnum.DOWN;
+            break;
+
+         default:
+            return;
+      }
+      this.lastDirection = this.direction;
    }
 }
