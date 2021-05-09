@@ -1,7 +1,6 @@
 import {
    GAME_HEIGHT,
    GAME_WIDTH,
-   SNAKE_SPEED_PER_SEC,
    SQUARE_SIZE,
    DirectionsEnum,
    COLORS,
@@ -51,22 +50,22 @@ export class Game {
 
    startGame() {
       this.modal.classList.add('hide');
-      this.lastRenderTime = 0;
       this.snake = new Snake(HEAD_POSITION.x, HEAD_POSITION.y);
 
       this.direction = DirectionsEnum.RIGHT;
       this.directionsQueue = [];
+
       this.isGameOver = false;
       this.score = 0;
       this.updateScore();
+      this.highscoreHTML.innerHTML = this.db.getHighScore().toString();
 
       this.point = new Square(this.getNewPointPosition().x, this.getNewPointPosition().y);
 
+      this.lastRenderTime = 0;
       this.myReq = window.requestAnimationFrame(this.mainGame.bind(this));
 
       document.addEventListener('keydown', (e) => this.setDirection(e));
-
-      this.highscoreHTML.innerHTML = this.db.getHighScore().toString();
    }
 
    mainGame(timestamp: DOMTimeStamp) {
