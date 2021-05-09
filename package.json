@@ -6,14 +6,17 @@
    "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
       "start": "npx webpack serve --content-base src",
-      "build": "npx webpack"
+      "build": "npx webpack",
+      "deploy": "gh-pages -d dist"
    },
    "keywords": [],
    "author": "",
    "license": "ISC",
+   "homepage": "https://lisekesil.github.io/ts-snake/",
    "devDependencies": {
       "copy-webpack-plugin": "^8.1.1",
       "css-loader": "^5.2.4",
+      "gh-pages": "^3.1.0",
       "node-sass": "^5.0.0",
       "sass-loader": "^11.0.1",
       "source-map-loader": "^2.0.1",
