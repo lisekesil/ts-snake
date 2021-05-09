@@ -1,5 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 body {
    background-color: rgb(44, 43, 49);
+   font-family: 'Press Start 2P', cursive;
 }
 
 #root {
@@ -7,6 +10,15 @@ body {
    top: 50%;
    left: 50%;
    transform: translate(-50%, -50%);
+   display: flex;
+   flex-direction: column;
+}
+
+.scoreContainer {
+   color: yellow;
+   padding: 10px;
+   display: flex;
+   justify-content: space-between;
 }
 
 #canvas {

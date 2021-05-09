@@ -21,6 +21,11 @@ export class Game {
 
    point: Square;
 
+   myReq: number;
+   isGameOver: boolean;
+   score: number;
+   scoreHTML: HTMLSpanElement;
+
    constructor() {
       this.canvas = <HTMLCanvasElement>document.getElementById('canvas');
       this.canvas.width = GAME_WIDTH;
@@ -28,14 +33,19 @@ export class Game {
       this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
       this.lastRenderTime = 0;
 
+      this.scoreHTML = <HTMLSpanElement>document.getElementById('score');
+
       this.snake = new Snake(HEAD_POSITION.x, HEAD_POSITION.y);
 
       this.direction = DirectionsEnum.RIGHT;
       this.directionsQueue = [];
+      this.isGameOver = false;
+      this.score = this.snake.body.length * SQUARE_SIZE;
+      this.updateScore();
 
       this.point = new Square(this.getNewPointPosition().x, this.getNewPointPosition().y);
 
-      window.requestAnimationFrame(this.animateGame.bind(this));
+      this.myReq = window.requestAnimationFrame(this.animateGame.bind(this));
 
       document.addEventListener('keydown', (e) => this.setDirection(e));
    }
@@ -47,6 +57,17 @@ export class Game {
 
       this.drawSnake();
       this.drawPoint();
+      if (this.isGameOver) {
+         this.ctx.beginPath();
+         this.ctx.rect(
+            this.snake.head.position.x,
+            this.snake.head.position.y,
+            this.snake.head.size,
+            this.snake.head.size,
+         );
+         this.ctx.strokeStyle = COLORS.head;
+         this.ctx.stroke();
+      }
    }
 
    drawPoint() {
@@ -87,18 +108,42 @@ export class Game {
       return pos;
    }
 
+   checkIfLose() {
+      const isBeyond =
+         this.snake.head.position.x < 0 ||
+         this.snake.head.position.x >= GAME_WIDTH ||
+         this.snake.head.position.y < 0 ||
+         this.snake.head.position.y >= GAME_HEIGHT;
+
+      let isOnTail = false;
+      this.snake.body.forEach((el, index) => {
+         if (index === 0) return;
+         if (
+            el.position.x === this.snake.head.position.x &&
+            el.position.y === this.snake.head.position.y
+         )
+            isOnTail = true;
+      });
+
+      if (isBeyond || isOnTail) {
+         window.cancelAnimationFrame(this.myReq);
+         this.isGameOver = true;
+      }
+   }
+
    animateGame(timestamp: DOMTimeStamp) {
-      window.requestAnimationFrame(this.animateGame.bind(this));
+      this.myReq = window.requestAnimationFrame(this.animateGame.bind(this));
       const progress = (timestamp - this.lastRenderTime) / 1000;
       if (progress < 1 / this.snake.speed) return;
 
       this.lastRenderTime = timestamp;
 
       const middle = SQUARE_SIZE / 2;
-      if (
+      const headIsOnPoint =
          this.snake.head.position.x + middle === this.point.position.x + middle &&
-         this.snake.head.position.y + middle === this.point.position.y + middle
-      ) {
+         this.snake.head.position.y + middle === this.point.position.y + middle;
+
+      if (headIsOnPoint) {
          const lastX = this.snake.body[this.snake.body.length - 1].position.x;
          const lastY = this.snake.body[this.snake.body.length - 1].position.y;
 
@@ -106,12 +151,15 @@ export class Game {
 
          const pointXY = this.getNewPointPosition();
          this.point = new Square(pointXY.x, pointXY.y);
+
+         this.updateScore();
       }
 
       if (this.directionsQueue.length) {
          this.direction = this.directionsQueue.pop()!;
       }
       this.snake.move(this.direction);
+      this.checkIfLose();
       this.drawGame();
    }
 
@@ -140,5 +188,10 @@ export class Game {
          default:
             return;
       }
+   }
+
+   updateScore() {
+      this.score += SQUARE_SIZE;
+      this.scoreHTML.innerHTML = this.score.toString();
    }
 }
