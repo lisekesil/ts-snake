@@ -5,9 +5,22 @@ export enum DirectionsEnum {
    DOWN = 'ArrowDown',
 }
 
-export const GAME_HEIGHT = 400;
-export const GAME_WIDTH = 600;
-
 export const SQUARE_SIZE = 40;
 
-export const SNAKE_SPEED_PER_SEC = 10;
+//  podzielne przez SQUARE_SIZE !!!
+export const GAME_HEIGHT = 600;
+export const GAME_WIDTH = 800;
+
+export const HEAD_POSITION = {
+   // podzielne przez SQUARE_SIZE !!!
+   x: 160,
+   y: 160,
+};
+export const SNAKE_SPEED_PER_SEC = 9;
+
+export const COLORS = {
+   background: '#fff',
+   head: '#000000',
+   tail: '#0bdb50',
+   point: '#ff0000',
+};

@@ -1,15 +1,24 @@
-import { GAME_HEIGHT, GAME_WIDTH, SNAKE_SPEED_PER_SEC, SQUARE_SIZE, DirectionsEnum } from './const';
+import {
+   GAME_HEIGHT,
+   GAME_WIDTH,
+   SNAKE_SPEED_PER_SEC,
+   SQUARE_SIZE,
+   DirectionsEnum,
+   COLORS,
+   HEAD_POSITION,
+} from './const';
 import { Snake } from './Snake';
 import { Square } from './Square';
 
 export class Game {
    canvas: HTMLCanvasElement;
    ctx: CanvasRenderingContext2D;
-   snake: Snake;
-   speed: number;
    lastRenderTime: number;
+
+   snake: Snake;
    direction: DirectionsEnum;
    directionsQueue: DirectionsEnum[];
+
    point: Square;
 
    constructor() {
@@ -17,17 +26,15 @@ export class Game {
       this.canvas.width = GAME_WIDTH;
       this.canvas.height = GAME_HEIGHT;
       this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
-
-      this.speed = SNAKE_SPEED_PER_SEC;
-
       this.lastRenderTime = 0;
 
-      this.point = new Square(40, 40);
-      this.snake = new Snake();
+      this.snake = new Snake(HEAD_POSITION.x, HEAD_POSITION.y);
+
       this.direction = DirectionsEnum.RIGHT;
-      this.directionsQueue = [this.direction];
-      this.drawSnake();
-      this.drawPoint();
+      this.directionsQueue = [];
+
+      this.point = new Square(this.getNewPointPosition().x, this.getNewPointPosition().y);
+
       window.requestAnimationFrame(this.animateGame.bind(this));
 
       document.addEventListener('keydown', (e) => this.setDirection(e));
@@ -35,6 +42,9 @@ export class Game {
 
    drawGame() {
       this.ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      this.ctx.fillStyle = COLORS.background;
+      this.ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
       this.drawSnake();
       this.drawPoint();
    }
@@ -42,8 +52,23 @@ export class Game {
    drawPoint() {
       this.ctx.beginPath();
       this.ctx.rect(this.point.position.x, this.point.position.y, this.point.size, this.point.size);
-      this.ctx.fillStyle = '#ff0000';
+      this.ctx.fillStyle = COLORS.point;
       this.ctx.fill();
+      this.ctx.stroke();
+   }
+
+   drawSnake() {
+      this.ctx.beginPath();
+      this.snake.body.forEach((el, index) => {
+         this.ctx.rect(el.position.x, el.position.y, el.size, el.size);
+         if (index === 0) {
+            this.ctx.fillStyle = COLORS.head;
+         } else if (index === 1) {
+            this.ctx.fillStyle = COLORS.tail;
+         }
+         this.ctx.fillRect(el.position.x, el.position.y, el.size, el.size);
+      });
+      this.ctx.strokeStyle = COLORS.background;
       this.ctx.stroke();
    }
 
@@ -62,22 +87,10 @@ export class Game {
       return pos;
    }
 
-   drawSnake() {
-      this.ctx.beginPath();
-      this.snake.body.forEach((el, index) => {
-         this.ctx.rect(el.position.x, el.position.y, el.size, el.size);
-         if (index === 0) {
-            this.ctx.fillStyle = '#000000';
-            this.ctx.fill();
-         }
-      });
-      this.ctx.stroke();
-   }
-
    animateGame(timestamp: DOMTimeStamp) {
       window.requestAnimationFrame(this.animateGame.bind(this));
       const progress = (timestamp - this.lastRenderTime) / 1000;
-      if (progress < 1 / this.speed) return;
+      if (progress < 1 / this.snake.speed) return;
 
       this.lastRenderTime = timestamp;
 
@@ -88,7 +101,9 @@ export class Game {
       ) {
          const lastX = this.snake.body[this.snake.body.length - 1].position.x;
          const lastY = this.snake.body[this.snake.body.length - 1].position.y;
+
          this.snake.body.push(new Square(lastX, lastY));
+
          const pointXY = this.getNewPointPosition();
          this.point = new Square(pointXY.x, pointXY.y);
       }
@@ -101,33 +116,25 @@ export class Game {
    }
 
    setDirection(e: KeyboardEvent) {
-      // this.lastDirection = this.direction;
       const lastDirection = this.directionsQueue.length ? this.directionsQueue[0] : this.direction;
+      if (lastDirection === e.key) return;
 
       switch (e.key) {
          case DirectionsEnum.RIGHT:
-            // if (this.lastDirection === DirectionsEnum.LEFT) return;
             if (lastDirection !== DirectionsEnum.LEFT)
                this.directionsQueue.unshift(DirectionsEnum.RIGHT);
-            // this.direction = DirectionsEnum.RIGHT;
             break;
          case DirectionsEnum.LEFT:
-            // if (this.lastDirection === DirectionsEnum.RIGHT) return;
             if (lastDirection !== DirectionsEnum.RIGHT)
                this.directionsQueue.unshift(DirectionsEnum.LEFT);
-            // this.direction = DirectionsEnum.LEFT;
             break;
          case DirectionsEnum.UP:
-            // if (this.lastDirection === DirectionsEnum.DOWN) return;
             if (lastDirection !== DirectionsEnum.DOWN)
                this.directionsQueue.unshift(DirectionsEnum.UP);
-            // this.direction = DirectionsEnum.UP;
             break;
          case DirectionsEnum.DOWN:
-            // if (this.lastDirection === DirectionsEnum.UP) return;
             if (lastDirection !== DirectionsEnum.UP)
                this.directionsQueue.unshift(DirectionsEnum.DOWN);
-            // this.direction = DirectionsEnum.DOWN;
             break;
 
          default:
