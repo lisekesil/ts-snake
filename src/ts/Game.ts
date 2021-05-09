@@ -77,14 +77,13 @@ export class Game {
 
       this.lastRenderTime = timestamp;
 
-      this.checkIfAtePoint();
-
       if (this.directionsQueue.length) {
          this.direction = this.directionsQueue.pop()!;
       }
 
       this.snake.move(this.direction);
       this.checkIfLose();
+      this.checkIfAtePoint();
       this.drawGame();
    }
 
