@@ -7,12 +7,20 @@ import {
    COLORS,
    HEAD_POSITION,
 } from './const';
+import { LocalStorage } from './localStorage';
 import { Snake } from './Snake';
 import { Square } from './Square';
 
 export class Game {
    canvas: HTMLCanvasElement;
    ctx: CanvasRenderingContext2D;
+
+   scoreHTML: HTMLSpanElement;
+   endScoreHTML: HTMLSpanElement;
+   highscoreHTML: HTMLSpanElement;
+   modal: HTMLDivElement;
+   againBtn: HTMLButtonElement;
+
    lastRenderTime: number;
 
    snake: Snake;
@@ -24,30 +32,59 @@ export class Game {
    myReq: number;
    isGameOver: boolean;
    score: number;
-   scoreHTML: HTMLSpanElement;
+   db: LocalStorage;
 
    constructor() {
       this.canvas = <HTMLCanvasElement>document.getElementById('canvas');
       this.canvas.width = GAME_WIDTH;
       this.canvas.height = GAME_HEIGHT;
       this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
-      this.lastRenderTime = 0;
 
       this.scoreHTML = <HTMLSpanElement>document.getElementById('score');
+      this.endScoreHTML = <HTMLSpanElement>document.getElementById('endScore');
+      this.highscoreHTML = <HTMLSpanElement>document.getElementById('highscore');
+      this.modal = <HTMLDivElement>document.getElementById('modal');
+      this.againBtn = <HTMLButtonElement>document.getElementById('againBtn');
+      this.againBtn.addEventListener('click', () => this.startGame());
+      this.db = new LocalStorage();
+   }
 
+   startGame() {
+      this.modal.classList.add('hide');
+      this.lastRenderTime = 0;
       this.snake = new Snake(HEAD_POSITION.x, HEAD_POSITION.y);
 
       this.direction = DirectionsEnum.RIGHT;
       this.directionsQueue = [];
       this.isGameOver = false;
-      this.score = this.snake.body.length * SQUARE_SIZE;
+      this.score = 0;
       this.updateScore();
 
       this.point = new Square(this.getNewPointPosition().x, this.getNewPointPosition().y);
 
-      this.myReq = window.requestAnimationFrame(this.animateGame.bind(this));
+      this.myReq = window.requestAnimationFrame(this.mainGame.bind(this));
 
       document.addEventListener('keydown', (e) => this.setDirection(e));
+
+      this.highscoreHTML.innerHTML = this.db.getHighScore().toString();
+   }
+
+   mainGame(timestamp: DOMTimeStamp) {
+      this.myReq = window.requestAnimationFrame(this.mainGame.bind(this));
+      const progress = (timestamp - this.lastRenderTime) / 1000;
+      if (progress < 1 / this.snake.speed) return;
+
+      this.lastRenderTime = timestamp;
+
+      this.checkIfAtePoint();
+
+      if (this.directionsQueue.length) {
+         this.direction = this.directionsQueue.pop()!;
+      }
+
+      this.snake.move(this.direction);
+      this.checkIfLose();
+      this.drawGame();
    }
 
    drawGame() {
@@ -99,8 +136,7 @@ export class Game {
          y: Math.ceil((Math.random() * GAME_HEIGHT - SQUARE_SIZE) / SQUARE_SIZE) * SQUARE_SIZE,
       };
       let exist = this.snake.body.find((el) => el.position.x === pos.x && el.position.y === pos.y);
-      console.log(exist?.position);
-      console.log(pos);
+
       if (exist?.position.y === pos.y && exist.position.x === pos.x) {
          pos = this.getNewPointPosition();
       }
@@ -116,6 +152,7 @@ export class Game {
          this.snake.head.position.y >= GAME_HEIGHT;
 
       let isOnTail = false;
+
       this.snake.body.forEach((el, index) => {
          if (index === 0) return;
          if (
@@ -128,16 +165,15 @@ export class Game {
       if (isBeyond || isOnTail) {
          window.cancelAnimationFrame(this.myReq);
          this.isGameOver = true;
+         this.showEndModal();
+         const oldHighScore = this.db.getHighScore();
+         if (oldHighScore < this.score) {
+            this.db.addHighscore(this.score);
+         }
       }
    }
 
-   animateGame(timestamp: DOMTimeStamp) {
-      this.myReq = window.requestAnimationFrame(this.animateGame.bind(this));
-      const progress = (timestamp - this.lastRenderTime) / 1000;
-      if (progress < 1 / this.snake.speed) return;
-
-      this.lastRenderTime = timestamp;
-
+   checkIfAtePoint() {
       const middle = SQUARE_SIZE / 2;
       const headIsOnPoint =
          this.snake.head.position.x + middle === this.point.position.x + middle &&
@@ -151,16 +187,9 @@ export class Game {
 
          const pointXY = this.getNewPointPosition();
          this.point = new Square(pointXY.x, pointXY.y);
-
+         this.score += SQUARE_SIZE;
          this.updateScore();
       }
-
-      if (this.directionsQueue.length) {
-         this.direction = this.directionsQueue.pop()!;
-      }
-      this.snake.move(this.direction);
-      this.checkIfLose();
-      this.drawGame();
    }
 
    setDirection(e: KeyboardEvent) {
@@ -191,7 +220,11 @@ export class Game {
    }
 
    updateScore() {
-      this.score += SQUARE_SIZE;
       this.scoreHTML.innerHTML = this.score.toString();
+   }
+
+   showEndModal() {
+      this.modal.classList.remove('hide');
+      this.endScoreHTML.innerHTML = this.score.toString();
    }
 }

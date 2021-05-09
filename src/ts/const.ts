@@ -8,8 +8,8 @@ export enum DirectionsEnum {
 export const SQUARE_SIZE = 40;
 
 //  podzielne przez SQUARE_SIZE !!!
-export const GAME_HEIGHT = 600;
-export const GAME_WIDTH = 800;
+export const GAME_HEIGHT = 480;
+export const GAME_WIDTH = 760;
 
 export const HEAD_POSITION = {
    // podzielne przez SQUARE_SIZE !!!

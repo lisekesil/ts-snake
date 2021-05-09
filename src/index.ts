@@ -1,4 +1,5 @@
 import './main.scss';
 import { Game } from './ts/Game';
 
-new Game();
+const game = new Game();
+game.startGame();
