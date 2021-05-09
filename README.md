@@ -2,6 +2,8 @@
 
 Simple snake game in Typescript with webpack, scss, localstorage. Also it uses canvas insted of HTML elements.
 
+DEMO: https://lisekesil.github.io/ts-snake/
+
 #### Getting started
 
 1. Clone or download repo
