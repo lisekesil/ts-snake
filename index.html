@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>snake</title>
+   </head>
+   <body>
+      <main id="root">
+         <span class="scoreContainer">HIGHSCORE: <span id="highscore">0</span></span>
+         <span class="scoreContainer">SCORE: <span id="score">0</span></span>
+         <canvas id="canvas"> </canvas>
+      </main>
+      <div id="modal" class="hide">
+         <article class="end">
+            <h1>GAME OVER</h1>
+            <span class="scoreContainer">YOUR SCORE: <span id="endScore"></span></span>
+            <button class="againBtn" id="againBtn">AGAIN</button>
+         </article>
+      </div>
+      <script src="index.js"></script>
+   </body>
+</html>
