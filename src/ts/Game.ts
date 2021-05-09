@@ -58,7 +58,9 @@ export class Game {
       this.isGameOver = false;
       this.score = 0;
       this.updateScore();
-      this.highscoreHTML.innerHTML = this.db.getHighScore().toString();
+      if (this.db.getHighScore()) {
+         this.highscoreHTML.innerHTML = this.db.getHighScore().toString();
+      }
 
       this.point = new Square(this.getNewPointPosition().x, this.getNewPointPosition().y);
 
